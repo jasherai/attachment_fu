@@ -414,7 +414,13 @@ module Technoweenie # :nodoc:
         def attachment_attributes_valid?
           [:size, :content_type].each do |attr_name|
             enum = attachment_options[attr_name]
-            errors.add attr_name, ActiveRecord::Errors.default_error_messages[:inclusion] unless enum.nil? || enum.include?(send(attr_name))
+            # Support Rails 2.2 translations, and older default message hash
+            begin
+              inclusion_error = I18n.translate('activerecord.errors.messages')[:inclusion]
+            rescue NameError
+              inclusion_error = ActiveRecord::Errors.default_error_messages[:inclusion]
+            end
+            errors.add attr_name, inclusion_error unless enum.nil? || enum.include?(send(attr_name))
           end
         end
 
